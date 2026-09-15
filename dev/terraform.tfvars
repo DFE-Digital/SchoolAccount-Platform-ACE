@@ -12,6 +12,14 @@ core_resource_group_name = "s268d01rg-uks-core"
 
 log_analytics_workspace_name = "s268d01log-sa-shared"
 
+logs_destination = "azure-monitor"
+
+diagnostic_log_categories = [
+  "ContainerAppConsoleLogs",
+  "ContainerAppSystemLogs",
+  "ContainerAppHTTPLogs",
+]
+
 application_insights_name = "s268d01appi-sa-shared"
 
 vnet_name = "s268d01-uks-core-vn-01"

@@ -37,5 +37,8 @@ module "ace_environment" {
   infrastructure_subnet_id           = data.azurerm_subnet.ace.id
   infrastructure_resource_group_name = var.infrastructure_resource_group_name
 
+  logs_destination          = var.logs_destination
+  diagnostic_log_categories = var.diagnostic_log_categories
+
   tags = var.tags
 }
