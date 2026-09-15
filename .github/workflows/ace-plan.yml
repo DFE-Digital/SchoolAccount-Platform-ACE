@@ -30,7 +30,7 @@ permissions:
 
 jobs:
   terraform-plan:
-    name: Terraform Plan
+    name: Plan
     runs-on: ubuntu-latest
 
     # On workflow_dispatch, plan only the chosen environment. On pull_request
@@ -71,7 +71,7 @@ jobs:
   # status check on main. Matrix jobs report one check per environment, so
   # without this the ruleset context would never be reported.
   plan-status:
-    name: ACE - Terraform Plan
+    name: Terraform Plan
     needs: terraform-plan
     if: always()
     runs-on: ubuntu-latest
