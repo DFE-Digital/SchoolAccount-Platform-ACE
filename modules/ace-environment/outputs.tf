@@ -13,3 +13,7 @@ output "default_domain" {
 output "static_ip_address" {
   value = azurerm_container_app_environment.this.static_ip_address
 }
+
+output "diagnostic_setting_id" {
+  value = try(azurerm_monitor_diagnostic_setting.this[0].id, null)
+}

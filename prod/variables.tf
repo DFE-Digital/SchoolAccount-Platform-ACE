@@ -41,3 +41,11 @@ variable "ace_subnet_name" {
 variable "tags" {
   type = map(string)
 }
+
+variable "logs_destination" {
+  type = string
+}
+
+variable "diagnostic_log_categories" {
+  type = list(string)
+}
