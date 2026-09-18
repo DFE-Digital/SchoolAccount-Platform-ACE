@@ -12,6 +12,8 @@ core_resource_group_name = "s268t05rg-uks-core"
 
 log_analytics_workspace_name = "s268t05log-sa-shared"
 
+key_vault_name = "s268t05kvs-sa-shared"
+
 logs_destination = "azure-monitor"
 
 diagnostic_log_categories = [

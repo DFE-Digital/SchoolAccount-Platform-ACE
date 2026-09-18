@@ -49,3 +49,7 @@ variable "logs_destination" {
 variable "diagnostic_log_categories" {
   type = list(string)
 }
+
+variable "key_vault_name" {
+type = string
+}
