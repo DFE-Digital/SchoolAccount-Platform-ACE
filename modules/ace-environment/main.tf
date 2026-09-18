@@ -10,6 +10,10 @@ resource "azurerm_container_app_environment" "this" {
   infrastructure_subnet_id           = var.infrastructure_subnet_id
   internal_load_balancer_enabled     = true
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   workload_profile {
     name                  = "Consumption"
     workload_profile_type = "Consumption"
