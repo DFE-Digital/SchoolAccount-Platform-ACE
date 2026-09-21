@@ -12,6 +12,10 @@ on:
           - preprod
           - prod
 
+  pull_request:
+    branches:
+      - main
+
   push:
     branches:
       - main
@@ -21,12 +25,22 @@ on:
       - 'prod/**'
       - 'modules/**'
 
+permissions:
+  contents: read
 
 jobs:
   terraform-plan:
-    name: Terraform Plan
+    name: Plan
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+
+    # On workflow_dispatch, plan only the chosen environment. On pull_request
+    # and push, plan all three, since a change under modules/ affects each.
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: ${{ inputs.environment && fromJson(format('["{0}"]', inputs.environment)) || fromJson('["dev","preprod","prod"]') }}
+
+    environment: ${{ matrix.environment }}
 
     env:
       ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
@@ -42,13 +56,31 @@ jobs:
         uses: hashicorp/setup-terraform@v4
 
       - name: Terraform Init
-        working-directory: ${{ inputs.environment }}
-        run: terraform init
+        working-directory: ${{ matrix.environment }}
+        run: terraform init -input=false
 
       - name: Terraform Validate
-        working-directory: ${{ inputs.environment }}
+        working-directory: ${{ matrix.environment }}
         run: terraform validate
 
       - name: Terraform Plan
-        working-directory: ${{ inputs.environment }}
-        run: terraform plan -parallelism=1
+        working-directory: ${{ matrix.environment }}
+        run: terraform plan -input=false -parallelism=1
+
+  # Aggregates the matrix into a single check named to match the required
+  # status check on main. Matrix jobs report one check per environment, so
+  # without this the ruleset context would never be reported.
+  plan-status:
+    name: Terraform Plan
+    needs: terraform-plan
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check plan results
+        run: |
+          if [ "${{ needs.terraform-plan.result }}" != "success" ]; then
+            echo "Terraform plan did not succeed for all environments (result: ${{ needs.terraform-plan.result }})."
+            exit 1
+          fi
+          echo "Terraform plan succeeded for all environments."
