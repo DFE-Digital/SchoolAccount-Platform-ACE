@@ -51,5 +51,5 @@ variable "diagnostic_log_categories" {
 }
 
 variable "key_vault_name" {
-type = string
+  type = string
 }

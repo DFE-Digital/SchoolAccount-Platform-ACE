@@ -1,0 +1,67 @@
+name: Platform ACE Plan
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+
+env:
+  # Keep in step with apply.yml and build.yml.
+  TF_VERSION: 1.16.5
+
+jobs:
+  plan:
+    name: Plan (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+
+    environment: ${{ inputs.environment }}
+
+    env:
+      ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+      ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+      ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+      ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Azure Login
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      # Fails rather than updating .terraform.lock.hcl, so CI only ever uses the
+      # provider versions and checksums committed to the repo.
+      - name: Terraform Init
+        run: terraform init -input=false -lockfile=readonly -reconfigure -backend-config=environments/${{ inputs.environment }}.backend.hcl
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -input=false -parallelism=1 -var-file=environments/${{ inputs.environment }}.tfvars -out=tfplan
+
+      - name: Publish Plan To Run Summary
+        run: |
+          {
+            echo "## Terraform plan — ACE (${{ inputs.environment }})"
+            echo '```terraform'
+            terraform show -no-color tfplan
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Plan
+        uses: actions/upload-artifact@v7
+        with:
+          name: tfplan-${{ inputs.environment }}
+          path: tfplan
+          retention-days: 1

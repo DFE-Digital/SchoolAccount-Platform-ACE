@@ -1,10 +1,28 @@
 # Terraform
-dev/.terraform/
+**/.terraform/*
 *.tfstate
 *.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
 
-# VS Code
+# Plan output from terraform plan -out=tfplan
+tfplan
+
+# Per-environment tfvars in environments/ are deliberately committed. They hold
+# non-secret config only; never put credentials in them.
+*.tfvars
+*.tfvars.json
+!environments/*.tfvars
+
+# IDEs
 .vscode/
+.idea/
 
 # Logs
 *.log
