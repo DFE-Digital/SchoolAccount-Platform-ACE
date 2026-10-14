@@ -1,0 +1,34 @@
+name: Platform ACE Deploy
+
+# Plans and applies one environment by hand. The pipeline in build.yml plans
+# every environment and applies them in turn; use this to re-run a single
+# environment.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to
+        type: environment
+        required: true
+
+# Shares a group with the pipeline in build.yml so the two never run together.
+concurrency:
+  group: deploy-platform-ace
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan
+    uses: ./.github/workflows/plan.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit
+
+  apply:
+    name: Apply
+    needs: plan
+    uses: ./.github/workflows/apply.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit

@@ -34,7 +34,7 @@ data "azurerm_key_vault" "shared" {
 data "azurerm_client_config" "current" {}
 
 module "ace_environment" {
-  source = "../modules/ace-environment"
+  source = "./modules/ace-environment"
 
   name                = var.ace_environment_name
   location            = var.location
@@ -51,7 +51,7 @@ module "ace_environment" {
 }
 
 resource "azurerm_key_vault_access_policy" "ace_environment" {
- key_vault_id = data.azurerm_key_vault.shared.id
+  key_vault_id = data.azurerm_key_vault.shared.id
 
   tenant_id = data.azurerm_client_config.current.tenant_id
   object_id = module.ace_environment.principal_id
