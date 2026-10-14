@@ -29,7 +29,7 @@ vnet_name = "s268t05-uks-core-vn-01"
 ace_subnet_name = "s268t05-uks-ace-sn-01"
 
 tags = {
-  "Environment"      = "PreProd"
+  "Environment"      = "Test"
   "Parent Business"  = "Funding and Allocations"
   "Portfolio"        = "Education and Skills Funding Agency"
   "Product"          = "School Account"
